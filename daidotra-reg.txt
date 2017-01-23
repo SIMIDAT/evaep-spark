@@ -1,0 +1,52 @@
+GENERATED RULE 0
+	Antecedent
+		Variable Education = Bachelors
+		Variable Marital-status = Married-civ-spouse
+	Consecuent: >50K
+
+GENERATED RULE 1
+	Antecedent
+		Variable Age = Label 1 	 (17.0 53.5 90.0)
+		Variable Education-num = Label 2 	 (8.5 16.0 23.5)
+	Consecuent: >50K
+
+GENERATED RULE 2
+	Antecedent
+		Variable Marital-status = Married-civ-spouse
+		Variable Occupation = Exec-managerial
+	Consecuent: >50K
+
+GENERATED RULE 3
+	Antecedent
+		Variable Marital-status = Married-civ-spouse
+		Variable Occupation = Prof-specialty
+	Consecuent: >50K
+
+GENERATED RULE 4
+	Antecedent
+		Variable Education-num = Label 1 	 (1.0 8.5 16.0)
+		Variable Capital-gain = Label 0 	 (-49999.5 0.0 49999.5)
+	Consecuent: <=50K
+
+GENERATED RULE 5
+	Antecedent
+		Variable Capital-gain = Label 0 	 (-49999.5 0.0 49999.5)
+		Variable Capital-loss = Label 0 	 (-2178.0 0.0 2178.0)
+	Consecuent: <=50K
+
+GENERATED RULE 6
+	Antecedent
+		Variable Fnlwgt = Label 0 	 (-724962.0 13492.0 751946.0)
+		Variable Capital-gain = Label 0 	 (-49999.5 0.0 49999.5)
+	Consecuent: <=50K
+
+GENERATED RULE 7
+	Antecedent
+		Variable Sex = Female
+	Consecuent: <=50K
+
+GENERATED RULE 8
+	Antecedent
+		Variable Sex = Male
+	Consecuent: <=50K
+

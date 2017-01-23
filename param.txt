@@ -1,0 +1,14 @@
+algorithm = EvAEP
+inputData = "adult-5-1tra.dat" "adult-5-1tra.dat" "adult-5-1tst.dat"
+outputData = "daido.tra" "daido.tst" "daidotra-reg.txt" "daidotst-quac.txt" "daidotra-seg.txt"
+seed = 1
+RulesRep = can
+nLabels = 3
+nEval = 10000
+popLength = 100
+crossProb = 0.6
+mutProb = 0.01
+Fitness = MEDGEO
+Initialisation = BIASED
+RoundRobin = NO
+NumPartitions = 8
