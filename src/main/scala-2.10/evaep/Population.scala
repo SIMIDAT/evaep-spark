@@ -1,6 +1,8 @@
 package evaep
 
 
+
+
 import utils.{ConfusionMatrix, FisherExact}
 
 /**
@@ -40,7 +42,7 @@ class Population extends Serializable{
 
   var indivi: Array[Individual]= null  // Population individuals
   private var num_indiv: Int = 0           // Max number of individuals in the population
-  var ej_cubiertos: Array[Boolean] = null;   // Covered examples of the population
+  //var ej_cubiertos: Array[Boolean] = null;   // Covered examples of the population
 
   /**
     * <p>
@@ -58,9 +60,9 @@ class Population extends Serializable{
     num_indiv = numind
     indivi = indivi.map { x => new IndCAN(numgen, neje, trials) }
 
-    ej_cubiertos = new Array[Boolean](neje)
+    //ej_cubiertos = new Array[Boolean](neje)
 
-    ej_cubiertos = ej_cubiertos.map(x => {false})
+    //ej_cubiertos = ej_cubiertos.map(x => {false})
 
   }
 
@@ -91,7 +93,7 @@ class Population extends Serializable{
     })
     this.indivi = biased ++ rnd
 
-    ej_cubiertos = ej_cubiertos.map{x => false}
+    //ej_cubiertos = ej_cubiertos.map{x => false}
 
   }
 
@@ -106,7 +108,8 @@ class Population extends Serializable{
     * @return                     Number of evaluations performed
     */
   def evalPop (AG : Genetic, Variables: TableVar, Examples : TableDat): Int = {
-    val cubiertos = Examples.cubiertos.clone()
+    val cubiertos = Examples.cubiertos.get(0,Examples.getNEx)
+    val neje = Examples.getNEx
 
     /**
       *  EVALUATES THE POPULATION AGAINST ALL THE EXAMPLES
@@ -121,7 +124,7 @@ class Population extends Serializable{
 
     val confusionMatrices = Examples.datosRDD.mapPartitions(x => {
       var matrices: Array[ConfusionMatrix] = new Array[ConfusionMatrix](indivsToEval.length)
-      matrices = matrices.map(x => new ConfusionMatrix)
+      matrices = matrices.map(x => new ConfusionMatrix(neje))
       while(x.hasNext){
         // Evaluate each example of the partitions against the whole non-evaluated population
         val d = x.next()
@@ -156,8 +159,9 @@ class Population extends Serializable{
           } // End for all chromosome values
 
           if(disparoCrisp > 0){
+            individual.cubre.set(index toInt)
             matrices(i).ejAntCrisp += 1
-            matrices(i).coveredExamples += index
+            //matrices(i).coveredExamples += index
             if(data.getClas == Variables.getNumClassObj){
               matrices(i).ejAntClassCrisp += 1
               matrices(i).tp += 1
@@ -168,7 +172,7 @@ class Population extends Serializable{
             // cubreClase[Examples.getClass(i)]++; // Como hago yo esto?
             // AQUI TENEMOS UN PROBLEMA CON LOS NUEVOS EJEMPLOS CUBIERTOS
 
-            if((!cubiertos(index toInt)) && (data.getClas == Variables.getNumClassObj)){
+            if((!cubiertos.get(index toInt)) && (data.getClas == Variables.getNumClassObj)){
               matrices(i).ejAntClassNewCrisp += 1
             }
           } else {
@@ -187,9 +191,14 @@ class Population extends Serializable{
       val ret = new Array[ConfusionMatrix](y.length)
       //trials += y.length
       for(i <- 0 until y.length) {
-        val toRet: ConfusionMatrix = new ConfusionMatrix
-        toRet.coveredExamples.appendAll(x(i).coveredExamples)
-        toRet.coveredExamples.appendAll(y(i).coveredExamples)
+        val toRet: ConfusionMatrix = new ConfusionMatrix(neje)
+        x(i).coveredExamples.foreach(value => indivsToEval(i).cubre.set(value toInt))
+        y(i).coveredExamples.foreach(value => indivsToEval(i).cubre.set(value toInt))
+        //toRet.coveredExamples.or(x(i).coveredExamples)
+        //toRet.coveredExamples.or(y(i).coveredExamples)
+        //toRet.coveredExamples = x(i).coveredExamples ++ y(i).coveredExamples
+        //toRet.coveredExamples.appendAll(x(i).coveredExamples)
+        //toRet.coveredExamples.appendAll(y(i).coveredExamples)
 
         toRet.ejAntClassCrisp = x(i).ejAntClassCrisp + y(i).ejAntClassCrisp
         toRet.ejAntClassNewCrisp = x(i).ejAntClassNewCrisp + y(i).ejAntClassNewCrisp
@@ -302,9 +311,9 @@ class Population extends Serializable{
       val confMatrix = confusionMatrices(j)
       // Mark covered examples
       confMatrix.coveredExamples.foreach( x => {
-        individual.cubre(x toInt) = true
+        individual.cubre.set(x toInt)
       })
-
+      //individual.cubre.or(confMatrix.coveredExamples)
       val numVarNoInterv: Int = confMatrix.numVarNoInterv / Examples.getNEx
       //COMPUTE THE MEASURES
 
@@ -596,7 +605,7 @@ class Population extends Serializable{
 
     this.setNumIndiv(poblacion.getNumIndiv)
 
-    this.ej_cubiertos = poblacion.ej_cubiertos.map(x => x)
+    //this.ej_cubiertos = poblacion.ej_cubiertos.map(x => x)
 
     var i = -1
     poblacion.indivi.foreach( x => {

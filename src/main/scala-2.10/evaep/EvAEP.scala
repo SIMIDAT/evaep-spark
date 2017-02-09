@@ -136,9 +136,7 @@ class EvAEP extends Serializable {
         println("Generate rules for class: " + actualClass)
 
         // Set examples as not covered
-        Examples.cubiertos = Examples.cubiertos.map(x => {
-          false
-        })
+        Examples.cubiertos.clear(0, Examples.getNEx)
 
         // Load the number of examples of the target class
         Examples.setExamplesClassObj(Variables.getNumClassObj)
@@ -165,6 +163,7 @@ class EvAEP extends Serializable {
           println("CALLS TO RANDOMIZE: " + Randomize.calls)
           println("GENS: " + AG.getGen)
           // Check the stopping condition
+          //terminar = true
           terminar = if ((result.getMeasures.getGRat < 1) || Examples.getExamplesCoveredClass == Examples.getExamplesClassObj || result.getMeasures.getNSup == 0) {
             true
           } else {
@@ -182,10 +181,10 @@ class EvAEP extends Serializable {
             numRulesGenerated += 1
 
             // Update the Examples structure (This should be optimised)
-            var j = -1
-            result.cubre.foreach(x => {
-              j += 1
-              if (x) {
+
+            for(j <- 0 until result.cubre.size()){
+
+              if (result.cubre.get(j)) {
                 if (!Examples.getCovered(j)) {
                   Examples.setCovered(j, true)
                   Examples.setExamplesCovered(Examples.getExamplesCovered + 1)
@@ -193,7 +192,7 @@ class EvAEP extends Serializable {
                     Examples.setExamplesCoveredClass(Examples.getExamplesCoveredClass + 1)
                 }
               }
-            })
+            }
             println("Ej. cubiertos TOTAL: " + Examples.getExamplesCovered)
             println("EJ. cubiertos CLASE: " + Examples.getExamplesCoveredClass)
 
@@ -428,7 +427,7 @@ class EvAEP extends Serializable {
     * @param classFinal
     */
   def calculateQualityMeasures(pop: ArrayBuffer[Individual], classFinal: ArrayBuffer[Int]): Unit = {
-
+  val neje = Examples.getNEx
     // Evaluates all individuals in the final population against the test data
     val confusionMatrices = Examples.datosRDD.map(x => {
       var i = -1
@@ -439,7 +438,7 @@ class EvAEP extends Serializable {
         val classIndiv = classFinal(i)
         var disparoCrisp = 1
         var disparoFuzzy = 1f
-        var matrix = new ConfusionMatrix
+        var matrix = new ConfusionMatrix(neje)
         for (j <- 0 until Variables.getNVars) {
           if (!Variables.getContinuous(j)) {
             // Discrete variable
@@ -468,7 +467,7 @@ class EvAEP extends Serializable {
 
         matrix.gradoCompAntFuzzy += disparoFuzzy
         if (disparoFuzzy > 0) {
-          matrix.coveredExamples += x._1
+          //matrix.coveredExamples(x._1 toInt) += x._1
           if (data.getClas == classIndiv) {
             matrix.gradoCompAntClassFuzzy += disparoFuzzy
           }
@@ -476,7 +475,7 @@ class EvAEP extends Serializable {
 
         if (disparoCrisp > 0) {
           matrix.ejAntCrisp += 1
-          matrix.coveredExamples += x._1
+          //matrix.coveredExamples(x._1 toInt) += x._1
           if (data.getClas == classIndiv) {
             matrix.ejAntClassCrisp += 1
             matrix.tp += 1
@@ -499,9 +498,11 @@ class EvAEP extends Serializable {
       val ret = new ArrayBuffer[ConfusionMatrix](0)
       //trials += y.length
       for (i <- 0 until y.length) {
-        val toRet: ConfusionMatrix = new ConfusionMatrix
-        toRet.coveredExamples.appendAll(x(i).coveredExamples)
-        toRet.coveredExamples.appendAll(y(i).coveredExamples)
+        val toRet: ConfusionMatrix = new ConfusionMatrix(neje)
+        //toRet.coveredExamples.or(x(i).coveredExamples)
+        //toRet.coveredExamples.or(x(i).coveredExamples)
+        //toRet.coveredExamples.appendAll(x(i).coveredExamples)
+        //toRet.coveredExamples.appendAll(y(i).coveredExamples)
 
         toRet.ejAntClassCrisp = x(i).ejAntClassCrisp + y(i).ejAntClassCrisp
         toRet.ejAntClassNewCrisp = x(i).ejAntClassNewCrisp + y(i).ejAntClassNewCrisp
@@ -549,8 +550,9 @@ class EvAEP extends Serializable {
 
       // Mark covered examples
       confMatrix.coveredExamples.foreach(x => {
-        individual.cubre(x toInt) = true
+        individual.cubre.set(x toInt)
       })
+      //individual.cubre.or(confMatrix.coveredExamples)
 
       val numVarNoInterv: Int = confMatrix.numVarNoInterv / Examples.getNEx
 

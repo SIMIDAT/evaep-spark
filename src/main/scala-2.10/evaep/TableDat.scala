@@ -42,7 +42,7 @@ class TableDat extends Serializable {
   private var ejClaseObj: Int = 0 //Number of examples of the target class
   private var total_ej_cubiertos: Int = 0;         // Total covered examples
   private var total_ej_cubiertos_clase: Int = 0;   // Total covered examples for class
-  var cubiertos: Array[Boolean] = new Array[Boolean](0)
+  var cubiertos: java.util.BitSet = new java.util.BitSet(0)
   var classes: Array[Int] = new Array[Int](0)
 
   def setExamplesCovered(value: Int) = {
@@ -178,7 +178,7 @@ class TableDat extends Serializable {
 
     // Count the number of examples
     nEjem = datosRDD.count().toInt // Set Sthe number of examples (instances) of the dataset
-    cubiertos = new Array[Boolean](nEjem)
+    cubiertos = new java.util.BitSet(nEjem)
 
     // Get the class of each example
     val aux = datosRDD.map(x => (x._1,x._2.getClas)).collect().sortBy(_._1)
@@ -214,7 +214,7 @@ class TableDat extends Serializable {
     */
   def getCovered (pos:Int) = {
     //datos(pos).getCovered
-    cubiertos(pos)
+    cubiertos.get(pos)
   }
 
   /**
@@ -224,7 +224,11 @@ class TableDat extends Serializable {
     */
   def setCovered (pos:Int, valor:Boolean) = {
     //datos(pos).setCovered(valor)
-    cubiertos(pos) = valor
+    if(valor){
+      cubiertos.set(pos)
+    } else {
+      cubiertos.clear(pos)
+    }
   }
 
 

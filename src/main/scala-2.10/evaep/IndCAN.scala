@@ -56,7 +56,7 @@ class IndCAN extends Individual with Serializable{
     this.medidas = new QualityMeasures();
 
     this.evaluado = false;
-    this.cubre = new Array[Boolean](neje);
+    this.cubre = new java.util.BitSet(neje);
 
     this.n_eval = trials;
 
@@ -76,10 +76,7 @@ class IndCAN extends Individual with Serializable{
     cromosoma.RndInitCrom(Variables, porcVar);  // Random initialization method
     evaluado = false;                           // Individual not evaluated
     var i = -1;
-    this.cubre.foreach(x  => {
-      i += 1
-      this.cubre(i) = false
-    })
+    this.cubre.clear(0,neje)
     n_eval = 0;
   }
 
@@ -101,7 +98,7 @@ class IndCAN extends Individual with Serializable{
     evaluado = false
 
     var i = -1
-    this.cubre = this.cubre.map(x => false)
+    this.cubre.clear(0, Examples.getNEx)
 
     n_eval = 0
     this
@@ -194,9 +191,7 @@ class IndCAN extends Individual with Serializable{
     this.evaluado = a.evaluado
 
 
-    for (i <- 0 until neje){
-      this.cubre(i) = a.cubre(i)
-    }
+    this.cubre = a.cubre.get(0,neje)
 
     this.setNEval(a.getNEval)
 
@@ -266,7 +261,7 @@ class IndCAN extends Individual with Serializable{
       val index = x._1
       var numVarNoInterv: Int = 0;
       var disparoCrisp: Int = 1;
-      val matrix = new ConfusionMatrix
+      val matrix = new ConfusionMatrix(100)
 
       for(j <- 0 until Variables.getNVars){
         if(! Variables.getContinuous(j)){
@@ -293,7 +288,7 @@ class IndCAN extends Individual with Serializable{
 
       if(disparoCrisp > 0){
         matrix.ejAntCrisp += 1
-        matrix.coveredExamples += index
+        //matrix.coveredExamples += index
         if(data.getClas == Variables.getNumClassObj){
           matrix.ejAntClassCrisp += 1
           matrix.tp += 1
@@ -304,7 +299,7 @@ class IndCAN extends Individual with Serializable{
         // cubreClase[Examples.getClass(i)]++; // Como hago yo esto?
         // AQUI TENEMOS UN PROBLEMA CON LOS NUEVOS EJEMPLOS CUBIERTOS
 
-        if((!Examples.cubiertos(index toInt)) && (data.getClas == Variables.getNumClassObj)){
+        if((!Examples.cubiertos.get(index toInt)) && (data.getClas == Variables.getNumClassObj)){
           matrix.ejAntClassNewCrisp += 1;
         }
       } else {
@@ -325,9 +320,9 @@ class IndCAN extends Individual with Serializable{
         * QUALITY MEASURES OF THE INDIVIDUAL
         */
     }).reduce((x,y) => {
-      val toRet: ConfusionMatrix = new ConfusionMatrix
-      toRet.coveredExamples.appendAll(x.coveredExamples)
-      toRet.coveredExamples.appendAll(y.coveredExamples)
+      val toRet: ConfusionMatrix = new ConfusionMatrix(100)
+      //toRet.coveredExamples.appendAll(x.coveredExamples)
+      //toRet.coveredExamples.appendAll(y.coveredExamples)
 
       toRet.ejAntClassCrisp = x.ejAntClassCrisp + y.ejAntClassCrisp
       toRet.ejAntClassNewCrisp = x.ejAntClassNewCrisp + y.ejAntClassNewCrisp
@@ -343,9 +338,9 @@ class IndCAN extends Individual with Serializable{
     })
 
     // Mark covered examples
-    confMatrix.coveredExamples.foreach( x => {
-      cubre(x toInt) = true
-    })
+    /*confMatrix.coveredExamples.foreach( x => {
+      cubre.set(x toInt)
+    })*/
 
 
 
@@ -596,7 +591,7 @@ class IndCAN extends Individual with Serializable{
 
   //override var tamano: Int = _
   //override var evaluado: Boolean = _
-  override var cubre: Array[Boolean] = _
+  override var cubre: java.util.BitSet = _
   override var cubr: Float = _
   override var n_eval: Int = _
   override var medidas: QualityMeasures = _

@@ -27,6 +27,8 @@ package utils
 /**
   * Created by Ángel Miguel García-Vico (agvico@ujaen.es) on 15/12/16.
   */
+import java.util
+
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -36,7 +38,7 @@ import scala.collection.mutable.ArrayBuffer
   * in order to calculate the quality measures of an individual following the
   * Map-Reduce paradigm
   */
-class ConfusionMatrix extends Serializable{
+class ConfusionMatrix(neje: Int) extends Serializable{
 
   /**
     * Values for the confusion matrix
@@ -60,6 +62,7 @@ class ConfusionMatrix extends Serializable{
 
 
   var coveredExamples: ArrayBuffer[Long] = new ArrayBuffer[Long](0)
+  //var coveredExamples: java.util.BitSet = new util.BitSet(neje)
 
 
 }

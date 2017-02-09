@@ -34,7 +34,7 @@ import utils.QualityMeasures
 abstract class Individual extends Serializable{
   var tamano: Int = 0
   var evaluado: Boolean = false
-  var cubre: Array[Boolean]
+  var cubre: java.util.BitSet
 
   var cubr : Float
   var n_eval: Int
@@ -56,7 +56,7 @@ abstract class Individual extends Serializable{
     * @return                  Value of the example
     */
   def getIndivCovered (pos: Int): Boolean = {
-    cubre(pos)
+    cubre.get(pos)
   }
 
   /**
