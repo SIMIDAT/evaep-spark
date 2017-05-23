@@ -340,16 +340,22 @@ class Genetic extends Serializable {
 
     if (cruce <= getProbCross){
       // Generation of the two point of cross
-      val xpoint1: Int = Randomize.Randint(0, Variables.getNVars - 1)
-      val xpoint2 = if (xpoint1 != Variables.getNVars - 1){
-        Randomize.Randint(xpoint1 + 1,Variables.getNVars - 1)
+      if(RulesRep equalsIgnoreCase "can") {
+        // Can RULES
+        val xpoint1: Int = Randomize.Randint(0, Variables.getNVars - 1)
+        val xpoint2 = if (xpoint1 != Variables.getNVars - 1) {
+          Randomize.Randint(xpoint1 + 1, Variables.getNVars - 1)
+        } else {
+          Variables.getNVars - 1
+        }
+        // Cross the parts between both points
+        for (i <- xpoint1 to xpoint2) {
+          auxiliar.setCromElem((contador * 2) - 1, i, 0, poblac.getCromElem(dad, i, 0, RulesRep), RulesRep)
+          auxiliar.setCromElem(contador * 2, i, 0, poblac.getCromElem(mom, i, 0, RulesRep), RulesRep)
+        }
       } else {
-        Variables.getNVars-1
-      }
-      // Cross the parts between both points
-      for (i <- xpoint1 to xpoint2) {
-          auxiliar.setCromElem ((contador*2)-1, i, 0, poblac.getCromElem(dad,i,0,RulesRep), RulesRep)
-          auxiliar.setCromElem (contador*2, i, 0, poblac.getCromElem(mom,i,0,RulesRep), RulesRep)
+        // DNF Rules
+
       }
     } else {
       auxiliar.CopyIndiv((contador*2)-1, neje, poblac.getIndiv(dad))

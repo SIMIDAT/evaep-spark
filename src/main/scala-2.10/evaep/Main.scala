@@ -30,21 +30,21 @@ package evaep
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
-import org.apache.log4j.Logger
 import org.apache.log4j.Level
+import org.apache.log4j.Logger
 
 object Main extends Serializable {
   private val algorithm: EvAEP = new EvAEP
 
-  def main(arg: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("akka").setLevel(Level.ERROR)
 
     //Spark Configuration
     //// Only for local development
     // Using Kryo instead of Java Serializer
-    val conf = new SparkConf().setAppName("EvAEP_Spark").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    //val conf = new SparkConf().setAppName("EvAEP_Spark").setMaster("local[*]").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    //val conf = new SparkConf().setAppName("EvAEP_Spark").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    val conf = new SparkConf().setAppName("EvAEP_Spark").setMaster("local[*]").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
     val sc = new SparkContext(conf)
 
@@ -53,12 +53,13 @@ object Main extends Serializable {
     //val nLabels = 3
 
     // Read the parameters
-    //algorithm.readParameters("param.txt"/*arg(0)*/, sc)
-    algorithm.readParameters(arg(0), sc)
+    algorithm.readParameters("param.txt"/*arg(0)*/, sc)
+    //algorithm.readParameters(arg(0), sc)
 
     // Runs the algorithm
     algorithm.runAlgorithm(sc, algorithm.partitions, algorithm.Variables.getNLabel)
 
   }
 }
+
 

@@ -195,6 +195,8 @@ class EvAEP extends Serializable {
             }
             println("Ej. cubiertos TOTAL: " + Examples.getExamplesCovered)
             println("EJ. cubiertos CLASE: " + Examples.getExamplesCoveredClass)
+            println("EJ: " + Examples.cubiertos.cardinality())
+
 
           }
           rulesClass = true
@@ -306,7 +308,9 @@ class EvAEP extends Serializable {
 
     val outputs_values = linesHead
       .map(line => line.split("( *)(\\{)( *)|( *)(\\})( *)|( *)(\\[)( *)|( *)(\\])( *)|( *)(,)( *)| "))
-      .filter(l => outputs.contains(l(1))).first().drop(2)
+      .filter(l =>
+        outputs.matches(".* " concat l(1))
+      ).first().drop(2)
 
     Variables.classNames = new Array[String](outputs_values.length)
     var i = -1

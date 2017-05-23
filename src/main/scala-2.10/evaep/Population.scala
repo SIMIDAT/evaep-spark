@@ -58,7 +58,10 @@ class Population extends Serializable{
     this()
     indivi = new Array[Individual](numind)
     num_indiv = numind
-    indivi = indivi.map { x => new IndCAN(numgen, neje, trials) }
+    if(RulRep equalsIgnoreCase("can"))
+      indivi = indivi.map { x => new IndCAN(numgen, neje, trials) }
+    else
+      indivi = indivi.map { x => new IndDNF(numgen, neje, Variables, trials) }
 
     //ej_cubiertos = new Array[Boolean](neje)
 
@@ -132,56 +135,7 @@ class Population extends Serializable{
         val index = d._1
         for(i <- indivsToEval.indices){
           val individual = indivsToEval(i)
-          val cromosoma = individual.getIndivCromCAN
-          var disparoCrisp = 1
-          var numVarNoInterv = 0
-          // Calculates the disparoCrisp of each variable
-          for(j <- 0 until Variables.getNVars){
-            if(! Variables.getContinuous(j)){
-              if(cromosoma.getCromElem(j) <= Variables.getMax(j)){
-                if( (data.getDat(j) != cromosoma.getCromElem(j)) && (!data.getLost(Variables, 0, j))){
-                  disparoCrisp = 0
-                }
-              } else {
-                matrices(i).numVarNoInterv += 1
-              }
-            } else {
-              if(cromosoma.getCromElem(j) < Variables.getNLabelVar(j)){
-                if(!data.getLost(Variables, 0, j)){
-                  if(individual.NumInterv(data.getDat(j), j, Variables) != cromosoma.getCromElem(j)){
-                    disparoCrisp = 0
-                  }
-                }
-              } else {
-                matrices(i).numVarNoInterv += 1
-              }
-            }
-          } // End for all chromosome values
-
-          if(disparoCrisp > 0){
-            individual.cubre.set(index toInt)
-            matrices(i).ejAntCrisp += 1
-            //matrices(i).coveredExamples += index
-            if(data.getClas == Variables.getNumClassObj){
-              matrices(i).ejAntClassCrisp += 1
-              matrices(i).tp += 1
-            } else {
-              matrices(i).ejAntNoClassCrisp += 1
-              matrices(i).fp += 1
-            }
-            // cubreClase[Examples.getClass(i)]++; // Como hago yo esto?
-            // AQUI TENEMOS UN PROBLEMA CON LOS NUEVOS EJEMPLOS CUBIERTOS
-
-            if((!cubiertos.get(index toInt)) && (data.getClas == Variables.getNumClassObj)){
-              matrices(i).ejAntClassNewCrisp += 1
-            }
-          } else {
-            if(data.getClas == Variables.getNumClassObj){
-              matrices(i).fn += 1
-            } else {
-              matrices(i).tn += 1
-            }
-          }
+          matrices(i) = matrices(i) + individual.evalExample(Variables, data, index, cubiertos)
         }
       }
       val aux = new Array[Array[ConfusionMatrix]](1)

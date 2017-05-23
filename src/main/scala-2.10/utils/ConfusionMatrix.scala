@@ -65,4 +65,22 @@ class ConfusionMatrix(neje: Int) extends Serializable{
   //var coveredExamples: java.util.BitSet = new util.BitSet(neje)
 
 
+  def +(that: ConfusionMatrix): ConfusionMatrix = {
+    val a = new ConfusionMatrix(1)
+    a.tn = this.tn + that.tn
+    a.tp=this.tp + that.tp
+    a.fp=this.fp + that.fp
+    a.fn=this.fn + that.fn
+
+    a.ejAntCrisp=this.ejAntCrisp + that.ejAntCrisp
+    a.ejAntClassCrisp=this.ejAntClassCrisp + that.ejAntClassCrisp
+    a.ejAntNoClassCrisp=this.ejAntNoClassCrisp + that.ejAntNoClassCrisp
+    a.ejAntClassNewCrisp=this.ejAntClassNewCrisp + that.ejAntClassNewCrisp
+    a.numVarNoInterv=this.numVarNoInterv + that.numVarNoInterv
+    a.gradoCompAntClassFuzzy=this.gradoCompAntClassFuzzy + that.gradoCompAntClassFuzzy
+    a.gradoCompAntFuzzy=this.gradoCompAntFuzzy + that.gradoCompAntFuzzy
+    a.coveredExamples=this.coveredExamples ++ that.coveredExamples
+
+    a
+  }
 }

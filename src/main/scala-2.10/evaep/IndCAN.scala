@@ -27,7 +27,7 @@ package evaep
 /**
   * Created by Ángel Miguel García-Vico (agvico@ujaen.es) on 15/12/16.
   */
-import java.util
+import java.util.BitSet
 
 import org.apache.ivy.plugins.parser.m2.PomModuleDescriptorBuilder.ConfMapper
 import utils.{ConfusionMatrix, QualityMeasures, Randomize}
@@ -616,4 +616,61 @@ class IndCAN extends Individual with Serializable{
     override var var2: Float = _
     override var var3: Float = _
     override var var4: Float = _*/
+
+  def evalExample(Variables: TableVar, data: TypeDat, index: Long, cubiertos: BitSet): ConfusionMatrix ={
+    var disparoCrisp = 1
+    var numVarNoInterv = 0
+    val mat = new ConfusionMatrix(1)
+    // Calculates the disparoCrisp of each variable
+    for(j <- 0 until Variables.getNVars){
+      if(! Variables.getContinuous(j)){
+        if(cromosoma.getCromElem(j) <= Variables.getMax(j)){
+          if( (data.getDat(j) != cromosoma.getCromElem(j)) && (!data.getLost(Variables, 0, j))){
+            disparoCrisp = 0
+          }
+        } else {
+          mat.numVarNoInterv += 1
+        }
+      } else {
+        if(cromosoma.getCromElem(j) < Variables.getNLabelVar(j)){
+          if(!data.getLost(Variables, 0, j)){
+            if(this.NumInterv(data.getDat(j), j, Variables) != cromosoma.getCromElem(j)){
+              disparoCrisp = 0
+            }
+          }
+        } else {
+          mat.numVarNoInterv += 1
+        }
+      }
+    } // End for all chromosome values
+
+    if(disparoCrisp > 0){
+      cubre.set(index toInt)
+      mat.ejAntCrisp += 1
+      mat.coveredExamples += index
+      if(data.getClas == Variables.getNumClassObj){
+        mat.ejAntClassCrisp += 1
+        mat.tp += 1
+      } else {
+        mat.ejAntNoClassCrisp += 1
+        mat.fp += 1
+      }
+      // cubreClase[Examples.getClass(i)]++; // Como hago yo esto?
+      // AQUI TENEMOS UN PROBLEMA CON LOS NUEVOS EJEMPLOS CUBIERTOS
+
+      if((!cubiertos.get(index toInt)) && (data.getClas == Variables.getNumClassObj)){
+        mat.ejAntClassNewCrisp += 1
+      }
+    } else {
+      if(data.getClas == Variables.getNumClassObj){
+        mat.fn += 1
+      } else {
+        mat.tn += 1
+      }
+    }
+
+    mat
+  }
+
+  override def getIndivCromDNF: CromDNF = null
 }

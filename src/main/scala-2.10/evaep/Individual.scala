@@ -28,8 +28,9 @@ package evaep
   * Created by Ángel Miguel García-Vico (agvico@ujaen.es) on 15/12/16.
   */
 import java.util
+import java.util.BitSet
 
-import utils.QualityMeasures
+import utils.{ConfusionMatrix, QualityMeasures}
 
 abstract class Individual extends Serializable{
   var tamano: Int = 0
@@ -116,6 +117,7 @@ abstract class Individual extends Serializable{
   def setCromGeneElem(pos: Int, elem: Int, value: Boolean)
 
   def getIndivCromCAN: CromCAN
+  def getIndivCromDNF: CromDNF
 
   def copyIndiv (indi: Individual, neje: Int)
 
@@ -126,6 +128,8 @@ abstract class Individual extends Serializable{
   def getClassIndividual (Variables: TableVar, Examples: TableDat, eje: Int): Float
 
   def Print(nFile: String)
+
+  def evalExample(Variables: TableVar, data: TypeDat, index: Long, cubiertos: BitSet): ConfusionMatrix
 
 
 }
