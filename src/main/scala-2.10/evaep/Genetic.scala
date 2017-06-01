@@ -331,8 +331,16 @@ class Genetic extends Serializable {
 
     // Copy the individuals to cross
     for (i <- 0 until Variables.getNVars) {
-        auxiliar.setCromElem((contador*2)-1, i, 0, poblac.getCromElem(mom,i,0,RulesRep), RulesRep)
-        auxiliar.setCromElem((contador*2), i, 0, poblac.getCromElem(dad,i,0,RulesRep), RulesRep)
+      if (RulesRep equalsIgnoreCase ("CAN")) {
+        auxiliar.setCromElem((contador * 2) - 1, i, 0, poblac.getCromElem(mom, i, 0, RulesRep), RulesRep)
+        auxiliar.setCromElem((contador * 2), i, 0, poblac.getCromElem(dad, i, 0, RulesRep), RulesRep)
+      } else {
+        val number = auxiliar.getIndivCromDNF(contador * 2).getCromGeneLenght(i)
+        for (ii <- 0 to number) {
+          auxiliar.setCromElem((contador * 2) - 1, i, ii, poblac.getCromElem(mom, i, ii, RulesRep), RulesRep)
+          auxiliar.setCromElem(contador * 2, i, ii, poblac.getCromElem(dad, i, ii, RulesRep), RulesRep)
+        }
+      }
     }
 
     val cruce: Double = Randomize.Randdouble(0.0,1.0)
@@ -340,26 +348,54 @@ class Genetic extends Serializable {
 
     if (cruce <= getProbCross){
       // Generation of the two point of cross
-      if(RulesRep equalsIgnoreCase "can") {
-        // Can RULES
         val xpoint1: Int = Randomize.Randint(0, Variables.getNVars - 1)
         val xpoint2 = if (xpoint1 != Variables.getNVars - 1) {
           Randomize.Randint(xpoint1 + 1, Variables.getNVars - 1)
         } else {
           Variables.getNVars - 1
         }
+
         // Cross the parts between both points
         for (i <- xpoint1 to xpoint2) {
-          auxiliar.setCromElem((contador * 2) - 1, i, 0, poblac.getCromElem(dad, i, 0, RulesRep), RulesRep)
-          auxiliar.setCromElem(contador * 2, i, 0, poblac.getCromElem(mom, i, 0, RulesRep), RulesRep)
-        }
-      } else {
-        // DNF Rules
+          if(RulesRep equalsIgnoreCase "can") {
+            // CAN Rules
+            auxiliar.setCromElem((contador * 2) - 1, i, 0, poblac.getCromElem(dad, i, 0, RulesRep), RulesRep)
+            auxiliar.setCromElem(contador * 2, i, 0, poblac.getCromElem(mom, i, 0, RulesRep), RulesRep)
+          } else {
+            // DNF Rles
+            val number: Int = auxiliar.getIndivCromDNF(contador * 2).getCromGeneLenght(i)
+            for(ii <- 0 to number) {
+              auxiliar.setCromElem((contador * 2) - 1, i, ii, poblac.getCromElem(dad, i, ii, RulesRep), RulesRep)
+              auxiliar.setCromElem((contador * 2), i, ii, poblac.getCromElem(mom, i, ii, RulesRep), RulesRep)
+            }
+            var aux1: Int = 0
+            var aux2: Int = 0
+           for(ii <- 0 until number) {
+             if (auxiliar.getCromElem((contador * 2) - 1, i, ii, RulesRep) == 1)
+               aux1 += 1
 
-      }
+             if (auxiliar.getCromElem((contador * 2), i, ii, RulesRep) == 1)
+               aux2 += 1
+           }
+
+            if ((aux1 == number) || (aux1 == 0)) {
+              auxiliar.setCromElem((contador * 2) - 1, i, number, 0, RulesRep)
+            } else {
+              auxiliar.setCromElem((contador * 2) - 1, i, number, 1, RulesRep)
+            }
+            if ((aux2 == number) || (aux2 == 0)) {
+              auxiliar.setCromElem((contador * 2), i, number, 0, RulesRep)
+            } else {
+              auxiliar.setCromElem((contador * 2), i, number, 1, RulesRep)
+            }
+          }
+        }
+
+      //auxiliar.setIndivEvaluated(contador*2,false)
+      //auxiliar.setIndivEvaluated((contador*2) -1, false)
     } else {
-      auxiliar.CopyIndiv((contador*2)-1, neje, poblac.getIndiv(dad))
-      auxiliar.CopyIndiv((contador*2), neje, poblac.getIndiv(mom))
+      auxiliar.CopyIndiv(contador * 2, neje, poblac.getIndiv(mom))
+      auxiliar.CopyIndiv(contador * 2 + 1, neje, poblac.getIndiv(dad))
     }
 
   }
@@ -384,17 +420,74 @@ class Genetic extends Serializable {
           val eliminar = Randomize.Randint (0,10)
           if (eliminar <= 5){
             if (!Variables.getContinuous(i)) {
-              auxiliar.setCromElem(pos, i, 0, (Variables.getMax(i) toInt) + 1, RulesRep)
+              if (RulesRep equalsIgnoreCase "can") {
+                auxiliar.setCromElem(pos, i, 0, (Variables.getMax(i) toInt) + 1, RulesRep)
+              } else {
+                val number = Variables.getNLabelVar(i)
+                for (l <- 0 to number) {
+                  auxiliar.setCromElem(pos, i, l, 0, RulesRep)
+                }
+              }
+
             } else {
-              auxiliar.setCromElem(pos, i, 0, Variables.getNLabelVar(i), RulesRep)
+              if (RulesRep.equalsIgnoreCase("can")) {
+                auxiliar.setCromElem(pos, i, 0, Variables.getNLabelVar(i), RulesRep)
+              } else {
+                val number = Variables.getNLabelVar(i)
+                for (l <- 0 to number) {
+                  auxiliar.setCromElem(pos, i, l, 0, RulesRep)
+                }
+              }
             }
           } else {
             if (!Variables.getContinuous(i)) {
-              auxiliar.setCromElem(pos, i, 0, Randomize.Randint(0, Variables.getMax(i) toInt), RulesRep)
-            } else {
-              auxiliar.setCromElem(pos, i, 0, Randomize.Randint(0, Variables.getNLabelVar(i) - 1), RulesRep)
+              if(RulesRep.equalsIgnoreCase("CAN")) {
+                auxiliar.setCromElem(pos, i, 0, Randomize.Randint(0, Variables.getMax(i) toInt), RulesRep)
+              } else {
+                val number = Variables.getNLabelVar(i)
+                val cambio = Randomize.Randint(0, number - 1)
+                if (auxiliar.getCromElem(pos, i, cambio, RulesRep) == 0) {
+                  auxiliar.setCromElem(pos, i, cambio, 1, RulesRep)
+                  var aux1 = 0
+                  for (ii <- 0 until number) {
+                    if (auxiliar.getCromElem(pos, i, ii, RulesRep) == 1)
+                      aux1 += 1
+                  }
+                  if ((aux1 == number) || (aux1 == 0))
+                    auxiliar.setCromElem(pos, i, number, 0, RulesRep)
+                  else
+                    auxiliar.setCromElem(pos, i, number, 1, RulesRep)
+                } else {
+                  for (k <- 0 to number)
+                    auxiliar.setCromElem(pos, i, k, 0, RulesRep)
+                }
+              }
+              } else {
+              if (RulesRep.equalsIgnoreCase("can")) {
+                auxiliar.setCromElem(pos, i, 0, Randomize.Randint(0, Variables.getNLabelVar(i) - 1), RulesRep)
+              } else {
+                val number = Variables.getNLabelVar(i)
+                val cambio = Randomize.Randint(0,number-1)
+                if(auxiliar.getCromElem(pos,i,cambio, RulesRep) == 0){
+                  auxiliar.setCromElem(pos,i,cambio,1,RulesRep)
+                  var aux1 = 0
+                  for(ii <- 0 to number){
+                    if(auxiliar.getCromElem(pos,i,ii,RulesRep) == 1)
+                      aux1 += 1
+                  }
+                  if((aux1 == number) || (aux1 == 0))
+                    auxiliar.setCromElem(pos,i,number,0,RulesRep)
+                  else
+                    auxiliar.setCromElem(pos,i,number,1,RulesRep)
+                } else {
+                  for(k <- 0 to number){
+                    auxiliar.setCromElem(pos,i,k,0,RulesRep)
+                  }
+                }
+              }
             }
-          }
+            }
+
 
           // Marks the chromosome as not evaluated
           //auxiliar.indivi(pos).evaluado = false

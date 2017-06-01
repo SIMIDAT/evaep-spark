@@ -43,8 +43,8 @@ object Main extends Serializable {
     //Spark Configuration
     //// Only for local development
     // Using Kryo instead of Java Serializer
-    //val conf = new SparkConf().setAppName("EvAEP_Spark").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    val conf = new SparkConf().setAppName("EvAEP_Spark").setMaster("local[*]").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    val conf = new SparkConf().setAppName("EvAEP_Spark").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    //val conf = new SparkConf().setAppName("EvAEP_Spark").setMaster("local[*]").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
     val sc = new SparkContext(conf)
 
@@ -53,8 +53,8 @@ object Main extends Serializable {
     //val nLabels = 3
 
     // Read the parameters
-    algorithm.readParameters("param.txt"/*arg(0)*/, sc)
-    //algorithm.readParameters(arg(0), sc)
+    //algorithm.readParameters("param.txt"/*arg(0)*/, sc)
+    algorithm.readParameters(args(0), sc)
 
     // Runs the algorithm
     algorithm.runAlgorithm(sc, algorithm.partitions, algorithm.Variables.getNLabel)

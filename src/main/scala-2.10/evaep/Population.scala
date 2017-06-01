@@ -55,13 +55,22 @@ class Population extends Serializable{
     * @param Variables       Variables structure
     */
   def this (numind: Int, numgen: Int, neje: Int, RulRep: String, Variables: TableVar, trials: Int) = {
-    this()
+    /*this()
     indivi = new Array[Individual](numind)
     num_indiv = numind
     if(RulRep equalsIgnoreCase("can"))
       indivi = indivi.map { x => new IndCAN(numgen, neje, trials) }
     else
-      indivi = indivi.map { x => new IndDNF(numgen, neje, Variables, trials) }
+      indivi = indivi.map { x => new IndDNF(numgen, neje, Variables, trials) }*/
+    this()
+    num_indiv = numind
+
+    if(RulRep equalsIgnoreCase "can")
+      indivi = Array.fill[Individual](numind)(new IndCAN(numgen, neje,0))
+    else
+      indivi = Array.fill[Individual](numind)(new IndDNF(numgen, neje, Variables, 0))
+
+    //ej_cubiertos = new BitSet(neje)
 
     //ej_cubiertos = new Array[Boolean](neje)
 
@@ -593,7 +602,12 @@ class Population extends Serializable{
     * @return                        Gene of the chromosome
     */
   def getCromElem (num_indiv: Int, pos: Int, elem: Int, RulRep: String): Int = {
-    this.indivi(num_indiv).getCromElem(pos)
+    if (RulRep.compareTo("CAN") == 0)
+      indivi(num_indiv).getCromElem(pos)
+    else if (indivi(num_indiv).getCromGeneElem(pos, elem))
+      1
+    else
+      0
   }
 
 
@@ -608,8 +622,10 @@ class Population extends Serializable{
     * @param RulRep                Rules representation
     */
   def setCromElem (num_indiv: Int, pos: Int, elem: Int, value: Int, RulRep: String) = {
-
-    this.indivi(num_indiv).setCromElem(pos, value)
+    if(RulRep equalsIgnoreCase "can")
+      indivi(num_indiv).setCromElem(pos, value)
+    else
+      indivi(num_indiv).setCromGeneElem(pos, elem, value == 1)
   }
 
 
@@ -645,6 +661,10 @@ class Population extends Serializable{
     */
   def getIndivCromCAN (num_indiv: Int): CromCAN = {
     this.indivi(num_indiv).getIndivCromCAN
+  }
+
+  def getIndivCromDNF (num_indiv: Int): CromDNF = {
+    this.indivi(num_indiv).getIndivCromDNF
   }
 
 
