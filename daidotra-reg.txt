@@ -1,0 +1,16 @@
+GENERATED RULE 0
+	Antecedent
+	Variable petalWidth = Label 0 (-1.1 0.1 1.3000001)	
+	Consecuent: Iris-setosa
+
+GENERATED RULE 1
+	Antecedent
+	Variable petalLength = Label 1 (1.0 3.95 6.9)	
+	Variable petalWidth = Label 1 (0.1 1.3000001 2.5)	
+	Consecuent: Iris-versicolor
+
+GENERATED RULE 2
+	Antecedent
+	Variable petalLength = Label 1 (1.0 3.95 6.9)	Label 2 (3.95 6.9 9.85)	
+	Consecuent: Iris-virginica
+

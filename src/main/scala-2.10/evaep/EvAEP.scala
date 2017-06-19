@@ -437,7 +437,7 @@ class EvAEP extends Serializable {
       var i = -1
       val data = x._2
 
-      pop.map(individual => {
+      /*pop.map(individual => {
         i += 1
         val classIndiv = classFinal(i)
         var disparoCrisp = 1
@@ -495,8 +495,13 @@ class EvAEP extends Serializable {
           }
         }
 
-        // Return
-        matrix
+      // return
+
+      })*/
+      pop.map(individual => {
+        i += 1
+        Variables.setNumClassObj(classFinal(i))
+        individual.evalExample(Variables,data,x._1,individual.cubre)
       })
     }).reduce((x, y) => {
       val ret = new ArrayBuffer[ConfusionMatrix](0)
@@ -755,27 +760,54 @@ class EvAEP extends Serializable {
 
       pw.println("GENERATED RULE " + aux)
       pw.println("\tAntecedent")
-      val regla: CromCAN = indiv.getIndivCromCAN
-      for (auxi <- 0 until Variables.getNVars) {
-        if (!Variables.getContinuous(auxi)) {
-          // Discrete variable
-          if (regla.getCromElem(auxi) < Variables.getNLabelVar(auxi)) {
-            pw.print("\t\tVariable " + Variables.getNameVar(auxi) + " = ")
-            pw.println(Variables.getNameLabel(auxi, regla.getCromElem(auxi)))
+      if(indiv.isInstanceOf[IndCAN])
+      {
+        val regla: CromCAN = indiv.getIndivCromCAN
+        for (auxi <- 0 until Variables.getNVars) {
+          if (!Variables.getContinuous(auxi)) {
+            // Discrete variable
+            if (regla.getCromElem(auxi) < Variables.getNLabelVar(auxi)) {
+              pw.print("\t\tVariable " + Variables.getNameVar(auxi) + " = ")
+              pw.println(Variables.getNameLabel(auxi, regla.getCromElem(auxi)))
+            }
+          }
+          else {
+            // Continuous variable
+            if (regla.getCromElem(auxi) < Variables.getNLabelVar(auxi)) {
+              pw.print("\t\tVariable " + Variables.getNameVar(auxi) + " = ")
+              pw.print("Label " + regla.getCromElem(auxi))
+              pw.print(" \t (" + Variables.getX0(auxi, regla.getCromElem(auxi)))
+              pw.print(" " + Variables.getX1(auxi, regla.getCromElem(auxi)))
+              pw.println(" " + Variables.getX3(auxi, regla.getCromElem(auxi)) + ")")
+            }
           }
         }
-        else {
-          // Continuous variable
-          if (regla.getCromElem(auxi) < Variables.getNLabelVar(auxi)) {
-            pw.print("\t\tVariable " + Variables.getNameVar(auxi) + " = ")
-            pw.print("Label " + regla.getCromElem(auxi))
-            pw.print(" \t (" + Variables.getX0(auxi, regla.getCromElem(auxi)))
-            pw.print(" " + Variables.getX1(auxi, regla.getCromElem(auxi)))
-            pw.println(" " + Variables.getX3(auxi, regla.getCromElem(auxi)) + ")")
+      } else {
+        var regla: CromDNF = indiv.getIndivCromDNF
+        for(auxi <- 0 until Variables.getNVars){
+          if(regla.getCromGeneElem(auxi, Variables.getNLabelVar(auxi))) {
+            if (!Variables.getContinuous(auxi)) {
+              pw.print("\tVariable " + Variables.getNameVar(auxi) + " = ")
+              for (j <- 0 until Variables.getNLabelVar(auxi)) {
+                if (regla.getCromGeneElem(auxi, j))
+                  pw.print(Variables.getNameLabel(auxi,j) + " ")
+              }
+              pw.println()
+            } else {
+              pw.print("\tVariable " + Variables.getNameVar(auxi) + " = ")
+              for (j <- 0 until Variables.getNLabelVar(auxi)) {
+                if (regla.getCromGeneElem(auxi, j)) {
+                  pw.print("Label " + j)
+                  pw.print(" (" + Variables.getX0(auxi, j))
+                  pw.print(" " + Variables.getX1(auxi, j))
+                  pw.print(" " + Variables.getX3(auxi, j) + ")\t")
+                }
+              }
+              pw.println()
+            }
           }
         }
       }
-
       pw.println("\tConsecuent: " + Variables.classNames(classFinal(aux)) + "\n")
     })
 
