@@ -320,7 +320,7 @@ class Population extends Serializable{
 
       //UNUS
       val coverage: Float = confMatrix.ejAntCrisp.toFloat / Examples.getNEx.toFloat
-      val unus = if (confMatrix.ejAntCrisp == 0){
+      val unus = if (confMatrix.ejAntCrisp == 0 || Examples.getNEx.toFloat == 0){
         0
       } else {
         coverage * (confMatrix.ejAntClassCrisp.toFloat / confMatrix.ejAntCrisp.toFloat - Examples.getExamplesClassObj.toFloat / Examples.getNEx.toFloat)

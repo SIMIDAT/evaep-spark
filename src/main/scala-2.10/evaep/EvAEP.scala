@@ -163,12 +163,12 @@ class EvAEP extends Serializable {
           println("CALLS TO RANDOMIZE: " + Randomize.calls)
           println("GENS: " + AG.getGen)
           // Check the stopping condition
-          //terminar = true
-          terminar = if ((result.getMeasures.getGRat < 1) || Examples.getExamplesCoveredClass == Examples.getExamplesClassObj || result.getMeasures.getNSup == 0) {
+          terminar = true
+          /*terminar = if ((result.getMeasures.getGRat < 1) || Examples.getExamplesCoveredClass == Examples.getExamplesClassObj || result.getMeasures.getNSup == 0) {
             true
           } else {
             false
-          }
+          }*/
           if (!rulesClass || !terminar) {
             // Print the resulting rule
             println("#" + numRulesGenerated + ":\n")
@@ -602,7 +602,11 @@ class EvAEP extends Serializable {
           val initUnus = cove * ((confMatrix.ejAntClassCrisp.toFloat / confMatrix.ejAntCrisp.toFloat) - (Examples.getExamplesClass(classFinal(i)).toFloat / Examples.getNEx.toFloat))
           val minUnus = (1 - classPct) * (0 - classPct)
           val maxUnus = classPct * (1 - classPct)
-          (initUnus - minUnus) / (maxUnus - minUnus)
+          
+          if(maxUnus-minUnus != 0)
+            (initUnus - minUnus) / (maxUnus - minUnus)
+          else
+            0
         }
         individual.medidas.setUnus(unus)
 
